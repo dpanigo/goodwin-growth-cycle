@@ -17,6 +17,23 @@ Lightweight interactive web application implementing Richard M. Goodwin's growth
 
 > Note: First load may take 30-60 seconds as the free-tier server wakes up from sleep mode.
 
+### App Preview
+
+![Goodwin Model Demo](goodwin_demo.gif)
+
+The animation shows:
+1. **Initial state** - Default parameters loaded
+2. **First simulation** - Running with default parameters (σ=4.0, α=β=0.02, γ=0.03, ρ=0.07)
+3. **Parameter adjustment** - Changing σ to 4.5 and v₀ to 0.80 using interactive sliders
+4. **Second simulation** - Observing how different parameters affect the cycle dynamics
+
+**Interactive features:**
+- Adjust parameters in real-time using sliders
+- Run simulations with different initial conditions
+- View both time series and phase diagram simultaneously
+- See equilibrium point calculations
+- All values stay within economically valid bounds [0,1]
+
 ## Features
 
 - **Pure Julia implementation** with custom RK4 integrator (no DifferentialEquations.jl)
