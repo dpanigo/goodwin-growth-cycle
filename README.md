@@ -11,6 +11,12 @@ app_port: 7860
 
 Lightweight interactive web application implementing Richard M. Goodwin's growth cycle model.
 
+## 🌐 Online Demo
+
+**Try it now:** [https://goodwin-growth-cycle.onrender.com](https://goodwin-growth-cycle.onrender.com)
+
+> Note: First load may take 30-60 seconds as the free-tier server wakes up from sleep mode.
+
 ## Features
 
 - **Pure Julia implementation** with custom RK4 integrator (no DifferentialEquations.jl)
