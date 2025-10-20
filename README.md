@@ -53,28 +53,86 @@ Where:
 - **Solver**: Custom Runge-Kutta 4th order integrator
 - **Memory footprint**: ~50-100 MB (vs 500-700 MB with full stack)
 
-## Local Development
+## Running Locally
 
-### Prerequisites
-- Julia 1.10 or newer
-- Docker (optional, for containerized deployment)
+### Option 1: Run with Julia (Direct)
 
-### Run Locally
+**Prerequisites:**
+- Install Julia 1.10 or newer from [julialang.org/downloads](https://julialang.org/downloads/)
 
-```bash
-cd GoodwinLite
-julia --project=. -e 'using Pkg; Pkg.instantiate()'
-julia --project=. server.jl
-```
+**Steps:**
 
-Open browser at: http://localhost:7860
+1. **Download the code** from GitHub (green "Code" button → Download ZIP, then extract)
 
-### Run with Docker
+2. **Open terminal/command prompt** and navigate to the project folder:
+   ```bash
+   cd path/to/GoodwinApp
+   ```
+   Example (Windows): `cd C:\Users\YourName\Downloads\GoodwinApp`
 
-```bash
-docker build -t goodwin-lite .
-docker run -p 7860:7860 goodwin-lite
-```
+   Example (Mac/Linux): `cd ~/Downloads/GoodwinApp`
+
+3. **Install required Julia packages** (only needed first time):
+   ```bash
+   julia -e "using Pkg; Pkg.add([\"HTTP\", \"JSON3\"])"
+   ```
+   This will download and install the necessary packages (~2-3 minutes).
+
+4. **Start the server**:
+   ```bash
+   julia server.jl
+   ```
+   You should see:
+   ```
+   🚀 Starting Goodwin Model Server...
+   🌐 URL: http://0.0.0.0:7860
+   ```
+
+5. **Open your browser** and go to:
+   ```
+   http://localhost:7860
+   ```
+
+6. **Stop the server** when done: Press `Ctrl+C` in the terminal
+
+---
+
+### Option 2: Run with Docker (Containerized)
+
+**Prerequisites:**
+- Install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/)
+
+**Steps:**
+
+1. **Download the code** (same as Option 1)
+
+2. **Open terminal/command prompt** and navigate to the project folder:
+   ```bash
+   cd path/to/GoodwinApp
+   ```
+
+3. **Build the Docker image** (only needed first time or after updates):
+   ```bash
+   docker build -t goodwin-app .
+   ```
+   This will take ~2-3 minutes to build.
+
+4. **Run the container**:
+   ```bash
+   docker run -p 7860:7860 goodwin-app
+   ```
+   You should see the server starting message.
+
+5. **Open your browser** and go to:
+   ```
+   http://localhost:7860
+   ```
+
+6. **Stop the container**: Press `Ctrl+C` in the terminal
+
+**Troubleshooting:**
+- If port 7860 is already in use, try: `docker run -p 8080:7860 goodwin-app` and open `http://localhost:8080`
+- Make sure Docker Desktop is running before executing docker commands
 
 ## Parameters
 
