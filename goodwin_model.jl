@@ -1,142 +1,156 @@
-module GoodwinModel
-
-using DifferentialEquations
-using Statistics
-
-export goodwin_model!, simulate_goodwin_model, calculate_equilibrium, calculate_time_averages
+"""
+Lightweight Goodwin Growth Cycle Model (1965)
+Pure Julia implementation with RK4 integrator
+No heavy dependencies
+"""
 
 """
-Goodwin Growth Cycle Model (1965)
+    goodwin_rhs!(du, u, params, t)
 
-System of differential equations describing Goodwin's model:
-- v = l/n (employment rate)
-- u = w/a (workers' share)
+Right-hand side of Goodwin's differential equations.
 
-Equations from original paper (pages 3-4):
-    v̇ = [(1/σ - (α + β)) - (1/σ)u]v     (1)
-    u̇ = [-(α + γ) + ρv]u                 (2)
+System:
+- dv/dt = v * [(1/σ - (α + β)) - u/σ]
+- du/dt = u * [ρ*v - (α + γ)]
 
-Parameters:
-- σ (sigma): capital-output ratio
-- α (alpha): productivity growth rate
-- β (beta): labor force growth rate
-- γ (gamma): wage adjustment function constant
-- ρ (rho): wage sensitivity to employment
+where:
+- v = employment rate
+- u = workers' share
+- σ = capital-output ratio
+- α = labor productivity growth rate
+- β = labor force growth rate
+- γ = constant in wage adjustment
+- ρ = sensitivity of wages to employment
 """
-function goodwin_model!(du, u_state, p, t)
-    v, u = u_state  # v = employment rate, u = workers' share
-    sigma, alpha_growth, beta, gamma, rho = p
+function goodwin_rhs!(du, u, params, t)
+    v, w = u
+    σ, α, β, γ, ρ = params
 
-    # Equation (1): dv/dt
-    du[1] = ((1 / sigma) - (alpha_growth + beta)) * v - (1 / sigma) * u * v
+    # dv/dt
+    du[1] = v * ((1.0/σ - (α + β)) - w/σ)
 
-    # Equation (2): du/dt
-    du[2] = (-(alpha_growth + gamma) + rho * v) * u
+    # du/dt (workers' share)
+    du[2] = w * (ρ*v - (α + γ))
+
+    return du
 end
 
 """
-Simulates Goodwin's model for a given set of parameters.
+    rk4_step(f!, u, params, t, dt)
 
-Arguments:
-- sigma: capital-output ratio (σ)
-- alpha_growth: productivity growth rate (α)
-- beta: labor force growth rate (β)
-- gamma: wage adjustment constant (γ)
-- rho: wage sensitivity to employment (ρ)
-- v0: initial condition for employment rate
-- u0: initial condition for workers' share
-- tspan: tuple (t_start, t_end) for simulation
-- num_points: number of time points to evaluate
+Single Runge-Kutta 4th order step.
+"""
+function rk4_step(f!, u, params, t, dt)
+    k1 = zeros(length(u))
+    k2 = zeros(length(u))
+    k3 = zeros(length(u))
+    k4 = zeros(length(u))
+    temp = zeros(length(u))
+
+    # k1 = f(t, u)
+    f!(k1, u, params, t)
+
+    # k2 = f(t + dt/2, u + k1*dt/2)
+    @. temp = u + 0.5*dt*k1
+    f!(k2, temp, params, t + 0.5*dt)
+
+    # k3 = f(t + dt/2, u + k2*dt/2)
+    @. temp = u + 0.5*dt*k2
+    f!(k3, temp, params, t + 0.5*dt)
+
+    # k4 = f(t + dt, u + k3*dt)
+    @. temp = u + dt*k3
+    f!(k4, temp, params, t + dt)
+
+    # u_new = u + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
+    @. u = u + (dt/6.0) * (k1 + 2.0*k2 + 2.0*k3 + k4)
+
+    return u
+end
+
+"""
+    solve_goodwin(params, u0, tspan, dt=0.01)
+
+Solve Goodwin model using RK4 integrator.
 
 Returns:
 - t: time vector
-- v: employment rate vector
-- u: workers' share vector
+- v: employment rate over time
+- u: workers' share over time
 """
-function simulate_goodwin_model(sigma, alpha_growth, beta, gamma, rho, v0, u0, tspan, num_points=1000)
-    println("  [GoodwinModel] Starting simulation...")
-    println("    Parameters: σ=$sigma, α=$alpha_growth, β=$beta, γ=$gamma, ρ=$rho")
-    println("    Conditions: v0=$v0, u0=$u0, tspan=$tspan")
+function solve_goodwin(params, u0, tspan, dt=0.01)
+    t_start, t_end = tspan
+    n_steps = Int(ceil((t_end - t_start) / dt))
 
-    try
-        u0_vec = [v0, u0]
-        p = [sigma, alpha_growth, beta, gamma, rho]
+    # Preallocate solution arrays
+    t = collect(range(t_start, t_end, length=n_steps+1))
+    v = zeros(n_steps+1)
+    w = zeros(n_steps+1)
 
-        t_eval = range(tspan[1], tspan[2], length=num_points)
+    # Initial conditions
+    u = copy(u0)
+    v[1] = u[1]
+    w[1] = u[2]
 
-        println("  [GoodwinModel] Creating ODE problem...")
-        prob = ODEProblem(goodwin_model!, u0_vec, tspan, p)
-
-        println("  [GoodwinModel] Solving ODE...")
-        sol = solve(prob, Tsit5(), saveat=t_eval, maxiters=1e7)
-
-        println("  [GoodwinModel] ODE solved, extracting results...")
-        t_result = collect(sol.t)
-        v_result = collect(sol[1,:])
-        u_result = collect(sol[2,:])
-
-        println("  [GoodwinModel] ✓ Simulation completed")
-        return t_result, v_result, u_result
-
-    catch e
-        println("  [GoodwinModel] ❌ ERROR in simulation: $e")
-        showerror(stdout, e, catch_backtrace())
-        # Return fallback data to avoid breaking the app
-        t_fallback = collect(0.0:1.0:100.0)
-        v_fallback = ones(101) .* v0
-        u_fallback = ones(101) .* u0
-        return t_fallback, v_fallback, u_fallback
+    # Integrate
+    for i in 1:n_steps
+        u = rk4_step(goodwin_rhs!, u, params, t[i], dt)
+        v[i+1] = u[1]
+        w[i+1] = u[2]
     end
+
+    return t, v, w
 end
 
 """
-Calculates the equilibrium point of Goodwin's model.
+    equilibrium_point(params)
 
-Equilibrium is obtained by setting v̇ = 0 and u̇ = 0 in equations (1) and (2):
-- u* = (1/σ - (α + β))/(1/σ) = 1 - σ(α + β)
-- v* = (α + γ)/ρ
+Calculate equilibrium point of Goodwin model.
 
-These are the long-run values around which the system oscillates.
-
-Arguments:
-- sigma: capital-output ratio (σ)
-- alpha_growth: productivity growth rate (α)
-- beta: labor force growth rate (β)
-- gamma: wage adjustment constant (γ)
-- rho: wage sensitivity to employment (ρ)
-
-Returns:
-- u_star: workers' share at equilibrium
-- v_star: employment rate at equilibrium
+Returns (v*, u*) where:
+- v* = (α + γ) / ρ
+- u* = (1/σ - (α + β)) / (1/σ)
 """
-function calculate_equilibrium(sigma, alpha_growth, beta, gamma, rho)
-    u_star = (1/sigma - (alpha_growth + beta)) / (1/sigma)
-    v_star = (alpha_growth + gamma) / rho
-    return u_star, v_star
+function equilibrium_point(params)
+    σ, α, β, γ, ρ = params
+    v_eq = (α + γ) / ρ
+    u_eq = (1.0/σ - (α + β)) / (1.0/σ)
+    return v_eq, u_eq
 end
 
 """
-Calculates time averages of v and u, excluding an initial 'warmup' phase.
+    simulate(σ, α, β, γ, ρ, v0, u0, t_max)
 
-As mentioned in Goodwin's paper (page 8), the system has constant long-run
-averages (η₁/θ₁ for u and η₂/θ₂ for v) that are independent of initial
-conditions. This function calculates those averages empirically.
+Run full simulation and return results.
 
-Arguments:
+Returns Dict with:
 - t: time vector
-- v: employment rate vector
-- u: workers' share vector
-- warmup_fraction: initial fraction of simulation to discard (default: 0.2)
-
-Returns:
-- avg_v: average employment rate
-- avg_u: average workers' share
+- v: employment rate
+- u: workers' share
+- profits: profit share (1 - u)
+- v_eq: equilibrium employment
+- u_eq: equilibrium workers' share
 """
-function calculate_time_averages(t, v, u, warmup_fraction=0.2)
-    n_skip = Int(floor(length(t) * warmup_fraction))
-    avg_v = mean(v[n_skip:end])
-    avg_u = mean(u[n_skip:end])
-    return avg_v, avg_u
-end
+function simulate(σ, α, β, γ, ρ, v0, u0, t_max)
+    params = (σ, α, β, γ, ρ)
+    u0_vec = [v0, u0]
+    tspan = (0.0, t_max)
 
-end # module
+    # Solve ODE
+    t, v, u = solve_goodwin(params, u0_vec, tspan, 0.1)
+
+    # Calculate equilibrium
+    v_eq, u_eq = equilibrium_point(params)
+
+    # Calculate profits
+    profits = 1.0 .- u
+
+    return Dict(
+        "t" => t,
+        "v" => v,
+        "u" => u,
+        "profits" => profits,
+        "v_eq" => v_eq,
+        "u_eq" => u_eq
+    )
+end

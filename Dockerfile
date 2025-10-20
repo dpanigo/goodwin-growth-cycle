@@ -1,27 +1,30 @@
-FROM julia:1.10
+FROM julia:1.10-slim
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Create working directory
 WORKDIR /app
 
-# Install and precompile packages (separate layer for caching)
-RUN julia -e 'using Pkg; Pkg.add(["GenieFramework", "DifferentialEquations"]); Pkg.precompile()'
+# Copy Project.toml first for better caching
+COPY Project.toml /app/
+
+# Install lightweight Julia packages (only HTTP.jl and JSON3.jl)
+RUN julia --project=/app -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 
 # Copy application files
-COPY run.jl /app/
-COPY app.jl /app/
 COPY goodwin_model.jl /app/
+COPY server.jl /app/
+COPY index.html /app/
 
-# Set environment variables for Hugging Face Spaces
+# Set environment variables for deployment
 ENV PORT=7860
 ENV HOST=0.0.0.0
 
-# Expose port 7860 (Hugging Face Spaces standard)
+# Expose port
 EXPOSE 7860
 
-# Command to start the application
-CMD ["julia", "--project=/app", "run.jl"]
+# Start server
+CMD ["julia", "--project=/app", "server.jl"]
