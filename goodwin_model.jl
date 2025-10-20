@@ -1,5 +1,5 @@
 """
-Lightweight Goodwin Growth Cycle Model (1965)
+Lightweight Goodwin Growth Cycle Model (1967)
 Pure Julia implementation with RK4 integrator
 No heavy dependencies
 """

@@ -7,7 +7,7 @@ sdk: docker
 app_port: 7860
 ---
 
-# Goodwin Growth Cycle Model (1965)
+# Goodwin Growth Cycle Model (1967)
 
 Lightweight interactive web application implementing Richard M. Goodwin's growth cycle model.
 
@@ -96,7 +96,7 @@ Suitable for: Render.com, Railway.app, Fly.io free tiers
 
 ## References
 
-Goodwin, R. M. (1965). "A Growth Cycle". Presented at the First World Congress of the Econometric Society, Rome, 1965.
+Goodwin, R. M. (1967). "A Growth Cycle". In C. H. Feinstein (Ed.), Socialism, Capitalism and Economic Growth. Cambridge University Press.
 
 ## License
 
