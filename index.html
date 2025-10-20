@@ -217,12 +217,12 @@
                     <h3>Initial Conditions</h3>
 
                     <div class="parameter">
-                        <label>v₀ (Initial Employment): <span class="value-display" id="v0-val">0.90</span></label>
+                        <label>v₀ (Initial Employment Rate): <span class="value-display" id="v0-val">0.90</span></label>
                         <input type="range" id="v0" min="0.1" max="1.0" step="0.01" value="0.90">
                     </div>
 
                     <div class="parameter">
-                        <label>u₀ (Initial Workers' Share): <span class="value-display" id="u0-val">0.70</span></label>
+                        <label>u₀ (Initial Wage Share): <span class="value-display" id="u0-val">0.70</span></label>
                         <input type="range" id="u0" min="0.1" max="1.0" step="0.01" value="0.70">
                     </div>
 
@@ -328,7 +328,7 @@
             const trace1 = {
                 x: data.t,
                 y: data.v,
-                name: 'Employment (v)',
+                name: 'Employment Rate (v)',
                 type: 'scatter',
                 line: { color: '#667eea', width: 2 }
             };
@@ -336,7 +336,7 @@
             const trace2 = {
                 x: data.t,
                 y: data.u,
-                name: 'Wages (u)',
+                name: 'Wage Share (u)',
                 type: 'scatter',
                 line: { color: '#764ba2', width: 2 }
             };
@@ -383,7 +383,7 @@
             const layout = {
                 title: 'Phase Diagram',
                 xaxis: { title: 'Employment Rate (v)' },
-                yaxis: { title: 'Workers\' Share (u)' },
+                yaxis: { title: 'Wage Share (u)' },
                 showlegend: true,
                 legend: { x: 1, xanchor: 'right', y: 1 }
             };
