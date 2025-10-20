@@ -8,11 +8,8 @@ RUN apt-get update && apt-get install -y \
 # Create working directory
 WORKDIR /app
 
-# Copy Project.toml first for better caching
-COPY Project.toml /app/
-
 # Install lightweight Julia packages (only HTTP.jl and JSON3.jl)
-RUN julia --project=/app -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+RUN julia -e 'using Pkg; Pkg.add(["HTTP", "JSON3"]); Pkg.precompile()'
 
 # Copy application files
 COPY goodwin_model.jl /app/
@@ -27,4 +24,4 @@ ENV HOST=0.0.0.0
 EXPOSE 7860
 
 # Start server
-CMD ["julia", "--project=/app", "server.jl"]
+CMD ["julia", "server.jl"]
