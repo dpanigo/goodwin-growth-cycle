@@ -76,6 +76,11 @@ end
 Router function
 """
 function router(req::HTTP.Request)
+    # Handle HEAD requests (health checks)
+    if req.method == "HEAD"
+        return HTTP.Response(200, ["Content-Type" => "text/html"])
+    end
+
     # Handle CORS preflight
     if req.method == "OPTIONS"
         return handle_cors(req)
