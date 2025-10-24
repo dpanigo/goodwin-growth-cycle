@@ -1,12 +1,3 @@
----
-title: Goodwin Growth Cycle Model
-emoji: 📊
-colorFrom: blue
-colorTo: green
-sdk: docker
-app_port: 7860
----
-
 # Goodwin Growth Cycle Model (1967)
 
 Lightweight interactive web application implementing Richard M. Goodwin's growth cycle model.
