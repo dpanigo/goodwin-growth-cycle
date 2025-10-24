@@ -1,6 +1,20 @@
 # Goodwin Growth Cycle Model (1967)
 
-Lightweight interactive web application implementing Richard M. Goodwin's growth cycle model.
+This repository provides a lightweight, interactive Julia implementation of Richard M. Goodwin’s “growth cycle” model (1967): 
+a two-dimensional predator–prey dynamic system in which the employment rate (𝑣) and the wage-share (𝑢) orbit an interior steady state, 
+generating endogenous cycles without exogenous shocks. The formulation adapts the Lotka–Volterra mechanics from biology
+—originally developed by Lotka (1925) and Volterra (1928)—to macroeconomics, assuming that wage dynamics respond to labor-market tightness 
+while capital accumulation and GDP growth are profit-led.
+
+
+## App Features
+- **Backend**: Julia HTTP server with JSON API
+- **Frontend**: Static HTML with Plotly.js
+- **Solver**: Custom Runge-Kutta 4th order integrator
+- **Memory footprint**: ~50-100 MB (vs 500-700 MB with full stack)
+- **Parameter adjustment:** Real-time trhough sliders
+- **Plots:** Time series and phase diagram
+- **Additional output:** Equilibrium point calculation for main endogenous variables
 
 ## 🌐 Online Demo
 
@@ -18,25 +32,9 @@ The animation shows:
 3. **Parameter adjustment** - Changing σ to 4.5 and v₀ to 0.80 using interactive sliders
 4. **Second simulation** - Observing how different parameters affect the cycle dynamics
 
-**Interactive features:**
-- Adjust parameters in real-time using sliders
-- Run simulations with different initial conditions
-- View both time series and phase diagram simultaneously
-- See equilibrium point calculations
-- All values stay within economically valid bounds [0,1]
+## Model details
 
-## Features
-
-- **Pure Julia implementation** with custom RK4 integrator (no DifferentialEquations.jl)
-- **Minimal dependencies** - only HTTP.jl and JSON3.jl
-- **Static HTML frontend** with Plotly.js for visualization
-- **Real-time parameter adjustment**
-- **Time series and phase diagram plots**
-- **Equilibrium point calculation**
-
-## Technical Details
-
-### Model Equations
+### Equations
 
 The Goodwin model describes economic cycles through a predator-prey system:
 
@@ -54,14 +52,16 @@ Where:
 - **γ** = constant in wage adjustment function
 - **ρ** = sensitivity of wages to employment level
 
-### Architecture
+### Parameter ranges (you can modify them locally)
 
-- **Backend**: Julia HTTP server with JSON API
-- **Frontend**: Static HTML with Plotly.js
-- **Solver**: Custom Runge-Kutta 4th order integrator
-- **Memory footprint**: ~50-100 MB (vs 500-700 MB with full stack)
+- **σ** (0.5-2.0): Capital-output ratio
+- **α** (0.001-0.1): Labor productivity growth rate
+- **β** (0.001-0.1): Labor force growth rate
+- **γ** (0.001-0.1): Wage adjustment constant
+- **ρ** (0.001-0.2): Wage sensitivity to employment
 
-## Running Locally
+
+## Alternatives for running locally
 
 ### Option 1: Run with Julia (Direct)
 
@@ -72,7 +72,7 @@ Where:
 
 1. **Download the code** from GitHub (green "Code" button → Download ZIP, then extract)
 
-2. **Open terminal/command prompt** and navigate to the project folder:
+2. **Open terminal/command prompt** and navigate to the project folder (where you unzip the repo):
    ```bash
    cd path/to/GoodwinApp
    ```
@@ -144,30 +144,6 @@ Where:
 **Troubleshooting:**
 - If port 7860 is already in use, try: `docker run -p 8080:7860 goodwin-app` and open `http://localhost:8080`
 - Make sure Docker Desktop is running before executing docker commands
-
-## Parameters
-
-### Model Parameters
-- **σ** (0.5-2.0): Capital-output ratio
-- **α** (0.001-0.1): Labor productivity growth rate
-- **β** (0.001-0.1): Labor force growth rate
-- **γ** (0.001-0.1): Wage adjustment constant
-- **ρ** (0.001-0.2): Wage sensitivity to employment
-
-### Initial Conditions
-- **v₀** (0.1-1.0): Initial employment rate
-- **u₀** (0.1-1.0): Initial workers' share
-- **Time** (50-500): Simulation duration
-
-## Deployment
-
-This lightweight version is optimized for free hosting platforms:
-
-- **Memory**: ~50-100 MB (fits in 512 MB free tiers)
-- **Build time**: ~2-3 minutes (vs 15-20 minutes)
-- **Dependencies**: Only 2 packages (vs 50+)
-
-Suitable for: Render.com, Railway.app, Fly.io free tiers
 
 ## References
 
