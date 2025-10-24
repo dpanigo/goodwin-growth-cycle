@@ -102,13 +102,16 @@ Where:
    You should see:
    ```
    🚀 Starting Goodwin Model Server...
-   🌐 URL: http://0.0.0.0:7860
+   🌐 Server listening on: http://0.0.0.0:7860
+   ✅ Access in browser: http://localhost:7860
    ```
 
 5. **Open your browser** and go to:
    ```
    http://localhost:7860
    ```
+
+   **Note:** The server binds to `0.0.0.0` but you must access it via `localhost` in your browser.
 
 6. **Stop the server** when done: Press `Ctrl+C` in the terminal
 
