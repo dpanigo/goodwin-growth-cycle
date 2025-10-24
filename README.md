@@ -12,7 +12,7 @@ while capital accumulation and GDP growth are profit-led.
 - **Frontend**: Static HTML with Plotly.js
 - **Solver**: Custom Runge-Kutta 4th order integrator
 - **Memory footprint**: ~50-100 MB (vs 500-700 MB with full stack)
-- **Parameter adjustment:** Real-time trhough sliders
+- **Parameter adjustment:** Real-time through sliders
 - **Plots:** Time series and phase diagram
 - **Additional output:** Equilibrium point calculation for main endogenous variables
 
